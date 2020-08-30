@@ -53,8 +53,13 @@ if(op=="1"):
 		
 		##
 		prod=input()
+		cur.execute("select quantity from Product where product_id=?",(prod))
+		avail=cur.fetchall()
+		ava=avail[0][0]
 		print("Enter the quantity")
 		quant=input()
+		availup=ava-int(quant)
+		cur.execute("update Product set quantity=? where product_id=?",(availup,prod))
 		##ADD to datbase
 		cur=conn.cursor()
 		olid=randint(100000,999999)
