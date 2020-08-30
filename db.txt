@@ -1,0 +1,45 @@
+CREATE TABLE `Product` (
+	`product_id`	NUMERIC NOT NULL,
+	`product_name`	TEXT,
+	`price`	NUMERIC,
+	`category_id`	NUMERIC,
+	`special_offer`	REAL,
+	`quantity`	NUMERIC,
+	PRIMARY KEY(`product_id`),
+	FOREIGN KEY(`category_id`) REFERENCES `Product_cat`(`category_id`) ON DELETE CASCADE
+)
+CREATE TABLE `Product_cat` (
+	`category_id`	NUMERIC NOT NULL,
+	`category_name`	TEXT,
+	PRIMARY KEY(`category_id`)
+)
+
+CREATE TABLE `customer` (
+	`customer_id`	NUMERIC NOT NULL,
+	`customer_name`	TEXT,
+	`email`	TEXT,
+	`phone`	NUMERIC,
+	`address`	TEXT,
+	`gender`	TEXT,
+	`age`	NUMERIC,
+	PRIMARY KEY(`customer_id`)
+)
+
+CREATE TABLE "orders" (
+	"order_id"	NUMERIC,
+	"customer_id"	NUMERIC,
+	"order_date"	TEXT,
+	"product_id"	NUMERIC,
+	"order_key"	INTEGER,
+	PRIMARY KEY("order_key"),
+	FOREIGN KEY("customer_id") REFERENCES "customer"("customer_id") ON DELETE CASCADE,
+	FOREIGN KEY("product_id") REFERENCES "Product"("product_id") ON DELETE CASCADE
+)
+
+CREATE TABLE "payment" (
+	"payment_id"	NUMERIC NOT NULL,
+	"payment_mode"	TEXT,
+	"order_id"	NUMERIC,
+	PRIMARY KEY("payment_id"),
+	FOREIGN KEY("order_id") REFERENCES "orders"("order_key") ON DELETE CASCADE
+)
