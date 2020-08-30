@@ -13,11 +13,11 @@ def create_connection(db_file):
 	return conn
 
 
-database = "shopping.db"
+database = "./cart"
 conn = create_connection(database)
-
+print("+++++++++++++++++++++++++++++++\n")
 print("Welcome to online shopping!!\n")
-print("Would you like to order??\nOptions:\n1->Yes!!\n2->No.Thank you!\n3->Cancel Order\n")
+print("Would you like to order??\n\nOptions:\n1->Yes!!\n2->No.Thank you!\n3->Cancel Order\n")
 op=input()
 #if(op=="1"):
 #	print("hello")
@@ -25,6 +25,7 @@ if(op=="1"):
 	print("Enter your customer id:\n")
 	cust_id=input()
 	order_id = randint(1000,9999)
+	cost=0
 	while(True):
 		print("Select the product category from below\nID--Category\n")
 		## CATEGORY SELECTION
@@ -32,7 +33,7 @@ if(op=="1"):
 		cur.execute("SELECT * FROM Product_cat")
 
 		rows = cur.fetchall()
-
+		print("============================\n")
 		for row in rows:
 			for word in row:
 				print (word,end=" "),
@@ -40,7 +41,8 @@ if(op=="1"):
 			print("\n")
 		##
 		cat=input()
-		print("Here is a list of products available--Select the required product\nID-NAME-------Quantity")
+		print("Here is a list of products available--Select the required product\n\nID-NAME-------Quantity")
+		print("========================\n")
 		## PRODUCT SELECTION
 		cur = conn.cursor()
 		cur.execute("SELECT product_id,product_name,quantity from Product where category_id=?",(cat,))
@@ -53,14 +55,23 @@ if(op=="1"):
 		
 		##
 		prod=input()
+		cur.execute("select quantity from Product where product_id=?",(prod))
+		avail=cur.fetchall()
+		ava=avail[0][0]
 		print("Enter the quantity")
 		quant=input()
+		availup=ava-int(quant)
+		cur.execute("update Product set quantity=? where product_id=?",(availup,prod))
+		
+		cur.execute("select price from product where product_id=?",prod)
+		price=cur.fetchone()
+		cost=cost + (int(price[0])*int(quant))
 		##ADD to datbase
 		cur=conn.cursor()
 		olid=randint(100000,999999)
 		cur.execute("insert into orders values (?,?,?,?,?)",(order_id,cust_id,date.today(),prod,olid,))
 		conn.commit()
-		print("1->Check out? \n2->Do you want to continue shopping??")
+		print("\n1->Check out? \n2->Do you want to continue shopping??")
 		con=input()
 		if(con=="1"):
 			## update payment id
@@ -70,8 +81,13 @@ if(op=="1"):
 			payment_id=pay_id
 			cur.execute("SELECT * FROM orders where customer_id = ?",cust)
 			rows=cur.fetchall()
+			print("order_id-customer_id-Date-Product_id-order_key\n")
+			print("================================================\n")
 			for row in rows:
-				print(row)
+				for word in row:
+					print (word,end=" ")
+				#print(row)
+				print("\n")
 
 			#selecting payment option
 			print("select payment option")
@@ -92,13 +108,14 @@ if(op=="1"):
 			cur.execute("update orders set payment_id=? where customer_id=? and order_id=?",(pay_id,cust_id,order_id,))
 			conn.commit()"""
 			break;
+	print("+++++++++++++++\nTotal cost = "+str(cost))
 
 	
 
 elif(op=="2"):
 	##DERECTLY CANCEL WITHOUT ANYTHING
 	print("Have a Good Day!!\n")
-	
+	print("+++++++++++++++++++\n")
 elif op=="3":
 	conn.execute("PRAGMA foreign_keys = 1")
 	cur=conn.cursor()
@@ -107,7 +124,10 @@ elif op=="3":
 	cur.execute("SELECT * FROM orders WHERE order_id = ?",(oid,))
 	rows=cur.fetchall()
 	for row in rows:
-		print(row)
+		for word in row:
+			print (word,end=" ")
+		#print(row)
+		print("\n")
 	cur.execute("DELETE FROM orders WHERE order_id = ?",(oid,))
 	conn.commit()
 	conn.close()
